@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>gas-build スキル 使い方ガイド</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600;700;800&display=swap');
+  :root {
+    --bg: #FFFFFF; --ink: #333333; --muted: #707070; --sub: #858585;
+    --line: #D6D6D6; --light-bg: #F8F8F8;
+    --primary: #A51E6D; --p4: #C06299; --p8: #E4BCD3; --p9: #EDD2E2; --p10: #F6E9F0;
+    --green: #039578; --g9: #CDEAE4; --g10: #E6F4F2;
+    --amber: #B45309; --amber-bg: #FFF8E7;
+    --red: #C0392B; --red-bg: #FDEDED;
+    --grad-start: #FF5757; --grad-end: #8C52FF;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Noto Sans JP", -apple-system, "Segoe UI", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+    background: var(--bg); color: var(--ink); line-height: 1.8; font-size: 15.5px;
+  }
+  a { color: var(--primary); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* Hero */
+  .hero {
+    background: linear-gradient(135deg, var(--grad-start), var(--grad-end));
+    padding: 64px 32px; text-align: center; color: #fff;
+  }
+  .hero .badge { display: inline-block; background: rgba(255,255,255,.2); border-radius: 999px;
+    padding: 4px 16px; font-size: 13px; font-weight: 700; margin-bottom: 16px; }
+  .hero h1 { font-size: 32px; font-weight: 800; margin-bottom: 12px; }
+  .hero p { font-size: 16px; opacity: .85; max-width: 600px; margin: 0 auto; }
+
+  /* Container */
+  .container { max-width: 800px; margin: 0 auto; padding: 0 24px; }
+
+  /* Section */
+  section { padding: 48px 0; }
+  section + section { border-top: 1px solid var(--line); }
+  .sec-label { display: inline-block; font-size: 12px; font-weight: 700; color: var(--primary);
+    background: var(--p10); border-radius: 6px; padding: 3px 10px; margin-bottom: 12px; }
+  section h2 { font-size: 24px; font-weight: 800; margin-bottom: 8px; }
+  section h3 { font-size: 18px; font-weight: 700; margin: 24px 0 8px; color: var(--ink); }
+  section p { color: var(--muted); margin-bottom: 12px; }
+
+  /* Cards */
+  .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+  .card-grid.col1 { grid-template-columns: 1fr; }
+  .card-grid.col3 { grid-template-columns: 1fr 1fr 1fr; }
+  .card {
+    background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 20px;
+  }
+  .card h4 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+  .card p { font-size: 14px; margin: 0; }
+  .card.accent { border-left: 4px solid var(--primary); background: var(--p10); }
+  .card.green { border-left: 4px solid var(--green); background: var(--g10); }
+  .card.warn { border-left: 4px solid var(--amber); background: var(--amber-bg); }
+
+  /* Trigger pills */
+  .triggers { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+  .trigger {
+    background: var(--p10); color: var(--primary); border: 1px solid var(--p8);
+    border-radius: 8px; padding: 6px 14px; font-size: 14px; font-weight: 600;
+  }
+
+  /* Flow */
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 20px 0; }
+  .flow-step {
+    flex: 1; text-align: center; padding: 20px 12px; position: relative;
+    background: var(--light-bg); border: 1px solid var(--line);
+  }
+  .flow-step:first-child { border-radius: 12px 0 0 12px; }
+  .flow-step:last-child { border-radius: 0 12px 12px 0; }
+  .flow-step .num {
+    display: inline-block; width: 28px; height: 28px; line-height: 28px;
+    background: var(--primary); color: #fff; border-radius: 50%;
+    font-size: 13px; font-weight: 700; margin-bottom: 8px;
+  }
+  .flow-step .label { font-size: 13px; font-weight: 700; color: var(--ink); display: block; }
+  .flow-step .desc { font-size: 12px; color: var(--sub); margin-top: 4px; }
+  .flow-step + .flow-step::before {
+    content: ''; position: absolute; left: -8px; top: 50%; transform: translateY(-50%);
+    width: 0; height: 0; border: 8px solid transparent; border-left-color: var(--line); z-index: 1;
+  }
+
+  /* Table */
+  .s-table { width: 100%; border-collapse: collapse; font-size: 14px; margin: 16px 0; }
+  .s-table th { text-align: left; padding: 10px 14px; background: var(--p10);
+    border: 1px solid var(--p9); font-weight: 700; color: var(--primary); white-space: nowrap; }
+  .s-table td { padding: 10px 14px; border: 1px solid var(--line); color: var(--muted); vertical-align: top; }
+
+  /* Rule list */
+  .rule-item { display: flex; gap: 14px; padding: 16px 0; border-bottom: 1px solid var(--line);
+    align-items: flex-start; }
+  .rule-item:last-child { border-bottom: none; }
+  .rule-num {
+    flex-shrink: 0; width: 40px; height: 40px; line-height: 40px; text-align: center;
+    background: var(--primary); color: #fff; border-radius: 10px;
+    font-size: 14px; font-weight: 800;
+  }
+  .rule-body h4 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .rule-body p { font-size: 13.5px; margin: 0; }
+
+  /* Checklist preview */
+  .check-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0;
+    border-bottom: 1px solid var(--line); font-size: 14px; color: var(--muted); }
+  .check-item:last-child { border-bottom: none; }
+  .check-box { flex-shrink: 0; width: 18px; height: 18px; border: 2px solid var(--line);
+    border-radius: 4px; margin-top: 2px; }
+
+  /* Code block */
+  .code-block { background: #1e1e2e; color: #cdd6f4; border-radius: 10px; padding: 16px 20px;
+    font-family: Consolas, monospace; font-size: 13px; line-height: 1.6; overflow-x: auto;
+    margin: 12px 0; }
+  .code-block .comment { color: #6c7086; }
+  .code-block .keyword { color: #cba6f7; }
+
+  /* Alert box */
+  .alert { border-radius: 10px; padding: 14px 18px; font-size: 14px; margin: 16px 0;
+    display: flex; align-items: flex-start; gap: 10px; }
+  .alert.info { background: var(--p10); border: 1px solid var(--p8); color: var(--primary); }
+  .alert.warn { background: var(--amber-bg); border: 1px solid #fde68a; color: var(--amber); }
+  .alert.ok { background: var(--g10); border: 1px solid var(--g9); color: var(--green); }
+  .alert .icon { font-size: 18px; flex-shrink: 0; line-height: 1.4; }
+  .alert b { color: var(--ink); }
+
+  /* Footer */
+  footer { text-align: center; padding: 32px; color: var(--sub); font-size: 13px;
+    border-top: 1px solid var(--line); margin-top: 16px; }
+
+  @media (max-width: 640px) {
+    .hero { padding: 40px 20px; }
+    .hero h1 { font-size: 24px; }
+    .card-grid, .card-grid.col3 { grid-template-columns: 1fr; }
+    .flow { flex-direction: column; }
+    .flow-step { border-radius: 0 !important; }
+    .flow-step:first-child { border-radius: 12px 12px 0 0 !important; }
+    .flow-step:last-child { border-radius: 0 0 12px 12px !important; }
+    .flow-step + .flow-step::before { display: none; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="badge">Claude Code Skill</div>
+    <h1>gas-build スキル 使い方ガイド</h1>
+    <p>GASを作る・直す・レビューするときに自動で適用されるルール集。<br>このページでは「何が起きるか」「何を準備するか」をまとめています。</p>
+  </div>
+
+  <div class="container">
+
+    <!-- What is this -->
+    <section id="about">
+      <span class="sec-label">概要</span>
+      <h2>このスキルは何？</h2>
+      <p>GAS（Google Apps Script）を<b>「書いた本人がいなくなっても、壊れない・止まらない・後から直せる」</b>状態で作るためのルール集です。</p>
+      <p>Claude Code上でGAS関連の作業をすると、このスキルが<b>自動で発火</b>し、8つの設計ルールに沿ってコードを書いたりレビューしたりします。</p>
+
+      <h3>こんな言葉で発火します</h3>
+      <div class="triggers">
+        <span class="trigger">GAS作って</span>
+        <span class="trigger">GAS書いて</span>
+        <span class="trigger">Apps Script組んで</span>
+        <span class="trigger">GASを改修して</span>
+        <span class="trigger">GASレビューして</span>
+        <span class="trigger">スプレッドシートの自動化作って</span>
+      </div>
+
+    </section>
+
+    <!-- Flow -->
+    <section id="flow">
+      <span class="sec-label">使い方</span>
+      <h2>発火したら何が起きる？</h2>
+      <p>あなたがやることは「GAS作って」と伝えるだけ。あとはClaudeが以下の流れで進めます。</p>
+
+      <div class="flow">
+        <div class="flow-step">
+          <span class="num">1</span>
+          <span class="label">環境チェック</span>
+          <span class="desc">GitHub+clasp等の前提が整っているか確認</span>
+        </div>
+        <div class="flow-step">
+          <span class="num">2</span>
+          <span class="label">ヒアリング</span>
+          <span class="desc">何を自動化するか・トリガー種別・実行アカウントを確認</span>
+        </div>
+        <div class="flow-step">
+          <span class="num">3</span>
+          <span class="label">設計・実装</span>
+          <span class="desc">R-1〜R-8 のルールに沿ってコードを書く</span>
+        </div>
+        <div class="flow-step">
+          <span class="num">4</span>
+          <span class="label">チェック・報告</span>
+          <span class="desc">リリース前チェックリストで全項目を確認・報告</span>
+        </div>
+      </div>
+
+      <div class="alert ok">
+        <span class="icon">&#10003;</span>
+        <div><b>改修・レビューのときも同じ。</b>既存コードを全部読んでからルール違反がないかチェックし、修正箇所と合わせて報告します。</div>
+      </div>
+    </section>
+
+    <!-- ENV -->
+    <section id="env">
+      <span class="sec-label">準備</span>
+      <h2>環境前提（これが整ってないと始まらない）</h2>
+      <p>このスキルは以下の環境が整っている前提で動きます。<br>未整備の場合、Claudeは「先に整備しましょう」と提案します（勝手に進めません）。</p>
+
+      <table class="s-table">
+        <tr><th>バージョン管理</th><td><b>GitHub + clasp</b> で管理する。「誰が・何を・なぜ変えたか」はGitのコミット履歴で残す。</td></tr>
+        <tr><th>デプロイフロー</th><td><b>clasp push</b> でコードを反映。push前に前の状態をコミット済みにする。</td></tr>
+        <tr><th>本番/テスト分離</th><td>本番とテスト用スクリプトを分け、テストで確認してから本番に反映する。</td></tr>
+        <tr><th>共有アカウント</th><td>トリガー設定用の<b>共有アカウント</b>がある。個人アカウントでトリガーを設定しない。</td></tr>
+        <tr><th>タイムゾーン</th><td><code>appsscript.json</code> は <code>Asia/Tokyo</code>。スプシ側も日本時間に揃える。</td></tr>
+      </table>
+
+      <div class="alert warn">
+        <span class="icon">!</span>
+        <div><b>なぜ環境前提が必要？</b><br>ルール（R-1〜R-8）はコードの書き方。でも環境が整っていないと、履歴管理もトリガー管理も成り立ちません。ルールの「外側」を先に固める必要があります。</div>
+      </div>
+    </section>
+
+    <!-- Rules -->
+    <section id="rules">
+      <span class="sec-label">ルール</span>
+      <h2>8つの設計ルール（R-1〜R-8）</h2>
+      <p>Claudeはこの8ルールに沿ってGASを書きます。全部覚える必要はありませんが、<br>「何をチェックしてるか」の概要を知っておくとレビュー結果が読みやすくなります。</p>
+
+      <div class="rule-item">
+        <div class="rule-num">R-1</div>
+        <div class="rule-body">
+          <h4>タブ名・列番号を直接書かない</h4>
+          <p>タブ名を「売上一覧」と直接書いていると、誰かがタブ名を変えた瞬間に動かなくなります。列も「3列目」ではなく「金額」という見出しで認識させます。<b>ちょっとした変更で壊れない作り</b>にするルール。</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
+            <div style="background:var(--red-bg);border-radius:8px;padding:12px;font-size:13px">
+              <div style="color:var(--red);font-weight:700;margin-bottom:4px">NG（壊れやすい）</div>
+              <b style="font-size:12px">タブ名：</b><code>getSheetByName("売上一覧")</code><br>
+              <span style="color:var(--sub);font-size:12px">※ タブ名を直接指定。名前を変えたら壊れる</span><br>
+              <b style="font-size:12px">列：</b><code>row[2]</code>（3列目を番号で指定）
+            </div>
+            <div style="background:var(--g10);border-radius:8px;padding:12px;font-size:13px">
+              <div style="color:var(--green);font-weight:700;margin-bottom:4px">OK（変更に強い）</div>
+              <b style="font-size:12px">タブ名：</b><code>getSheetById(1234567)</code> で指定<br>
+              <span style="color:var(--sub);font-size:12px">※ GID は getSheetById の略。スプシURLの末尾 <code>#gid=1234567</code> の数字がそれ</span><br>
+              <b style="font-size:12px">列：</b><code>row[header["金額"]]</code>（見出し名で指定）
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-num">R-2</div>
+        <div class="rule-body">
+          <h4>設定値を1か所にまとめる</h4>
+          <p>「対象シートはこれ」「通知先はここ」といった設定がコードのあちこちに散らばっていると、何かを変えたいときに全部探し回ることに。<b>先頭の1か所にまとめて、そこだけ見れば全部わかる</b>状態にします。</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
+            <div style="background:var(--red-bg);border-radius:8px;padding:12px;font-size:13px">
+              <div style="color:var(--red);font-weight:700;margin-bottom:4px">NG（散らばっている）</div>
+              コードの10行目に <code>sheetId = 123</code><br>
+              50行目に <code>slack = "https://..."</code><br>
+              120行目に <code>retryMax = 3</code><br>
+              <span style="color:var(--sub);font-size:12px">※ 変更するとき全部探し回る必要がある</span>
+            </div>
+            <div style="background:var(--g10);border-radius:8px;padding:12px;font-size:13px">
+              <div style="color:var(--green);font-weight:700;margin-bottom:4px">OK（1か所にまとまっている）</div>
+              <code>CONFIG = {</code><br>
+              <code>&nbsp; SHEET_GID: 123,</code><br>
+              <code>&nbsp; SLACK_URL: "...",</code><br>
+              <code>&nbsp; RETRY_MAX: 3</code><br>
+              <code>}</code><br>
+              <span style="color:var(--sub);font-size:12px">※ ここだけ見れば全設定がわかる</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-num">R-3</div>
+        <div class="rule-body">
+          <h4>速く動く + 途中で止まらない</h4>
+          <p>1マスずつ読み書きすると激遅（最大20倍の差）。さらにGASには「1回6分まで」の制限があり、データが増えると途中で時間切れに。<b>まとめて処理し、多ければ分割して続きから再開</b>する設計にします。</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
+            <div style="background:var(--red-bg);border-radius:8px;padding:12px;font-size:13px">
+              <div style="color:var(--red);font-weight:700;margin-bottom:4px">NG（1マスずつ・遅い）</div>
+              1行ごとに繰り返し：<br>
+              <code>&nbsp; getValue()</code> で1マス読む<br>
+              <code>&nbsp; setValue()</code> で1マス書く<br>
+              <span style="color:var(--sub);font-size:12px">※ 100行あれば200回通信。6分制限に引っかかる</span>
+            </div>
+            <div style="background:var(--g10);border-radius:8px;padding:12px;font-size:13px">
+              <div style="color:var(--green);font-weight:700;margin-bottom:4px">OK（まとめて・速い）</div>
+              1. <code>getValue<b>s</b>()</code> で全部まとめて読む<br>
+              2. コード内でまとめて編集<br>
+              3. <code>setValue<b>s</b>()</code> で全部まとめて書き戻す<br>
+              <span style="color:var(--sub);font-size:12px">※ スプシとの通信は読む・書くの2回だけ。最大20倍速い</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-num">R-4</div>
+        <div class="rule-body">
+          <h4>エラーに気づける + 自動で立ち直る</h4>
+          <p>GAS標準の失敗通知は1日1回だけ。気づいたときには手遅れになりがち。<b>おかしいデータは入口で弾き、失敗したらSlack/メールにすぐ通知</b>。一時的な不具合は自動でやり直します。</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
+            <div style="background:var(--red-bg);border-radius:8px;padding:12px;font-size:13px">
+              <div style="color:var(--red);font-weight:700;margin-bottom:4px">NG（気づけない）</div>
+              エラーが起きても何もしない<br>
+              or <code>catch(e) {}</code> で握りつぶす<br>
+              <span style="color:var(--sub);font-size:12px">※ GAS標準通知は1日1回。気づいたら翌日</span>
+            </div>
+            <div style="background:var(--g10);border-radius:8px;padding:12px;font-size:13px">
+              <div style="color:var(--green);font-weight:700;margin-bottom:4px">OK（すぐ気づける）</div>
+              <code>catch(e) {</code><br>
+              <code>&nbsp; Slackに即通知</code><br>
+              <code>&nbsp; 自動リトライ（3回まで）</code><br>
+              <code>}</code><br>
+              <span style="color:var(--sub);font-size:12px">※ 失敗した瞬間にSlackに飛ぶ</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-num">R-5</div>
+        <div class="rule-body">
+          <h4>同時操作で壊れない + 自動実行の管理</h4>
+          <p>複数人が同時にフォーム送信するとデータがぶつかって消えることが。<b>順番待ちの仕組み（ロック）で防止</b>します。自動実行は共有アカウントで設定し、古い設定を消し忘れて二重に動く事故も防ぎます。</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
+            <div style="background:var(--red-bg);border-radius:8px;padding:12px;font-size:13px">
+              <div style="color:var(--red);font-weight:700;margin-bottom:4px">NG</div>
+              <b style="font-size:12px">同時操作：</b>ロックなし → データ消失<br>
+              <b style="font-size:12px">トリガー：</b>個人アカウントで設定<br>
+              <span style="color:var(--sub);font-size:12px">※ その人が退職したら止まる＆止められない</span>
+            </div>
+            <div style="background:var(--g10);border-radius:8px;padding:12px;font-size:13px">
+              <div style="color:var(--green);font-weight:700;margin-bottom:4px">OK</div>
+              <b style="font-size:12px">同時操作：</b>ロックで順番待ち → 安全<br>
+              <b style="font-size:12px">トリガー：</b>共有アカウントで設定<br>
+              <span style="color:var(--sub);font-size:12px">※ 誰でも管理・停止できる</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-num">R-6</div>
+        <div class="rule-body">
+          <h4>パスワードや鍵をコードに書かない</h4>
+          <p>APIキーやパスワードをコードに直接書くと、ファイルを共有した瞬間に流出します。<b>鍵は別の安全な場所（スクリプトプロパティ）に保管</b>し、コードからは「取り出す」だけにします。</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
+            <div style="background:var(--red-bg);border-radius:8px;padding:12px;font-size:13px">
+              <div style="color:var(--red);font-weight:700;margin-bottom:4px">NG（流出リスク）</div>
+              <code>apiKey = "sk-abc123..."</code><br>
+              <span style="color:var(--sub);font-size:12px">※ コードに直書き。共有したら丸見え</span>
+            </div>
+            <div style="background:var(--g10);border-radius:8px;padding:12px;font-size:13px">
+              <div style="color:var(--green);font-weight:700;margin-bottom:4px">OK（安全）</div>
+              <code>PropertiesService</code><br>
+              <code>.getProperty("API_KEY")</code><br>
+              <span style="color:var(--sub);font-size:12px">※ 鍵は別の安全な場所に保管。コードには名前だけ</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-num">R-7</div>
+        <div class="rule-body">
+          <h4>時間がズレないようにする</h4>
+          <p>GASの初期設定はアメリカ時間。放っておくと日時が14時間ズレます（超あるある事故）。<b>日本時間（Asia/Tokyo）に固定</b>して、スプレッドシート側とも揃えます。</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
+            <div style="background:var(--red-bg);border-radius:8px;padding:12px;font-size:13px">
+              <div style="color:var(--red);font-weight:700;margin-bottom:4px">NG（ズレる）</div>
+              タイムゾーン設定を放置<br>
+              <span style="color:var(--sub);font-size:12px">※ 朝7時のつもりが前日17時扱い（-14時間）</span>
+            </div>
+            <div style="background:var(--g10);border-radius:8px;padding:12px;font-size:13px">
+              <div style="color:var(--green);font-weight:700;margin-bottom:4px">OK（ズレない）</div>
+              <code>timeZone: "Asia/Tokyo"</code><br>
+              <span style="color:var(--sub);font-size:12px">※ appsscript.json + スプシ側も日本時間に統一</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="rule-item">
+        <div class="rule-num">R-8</div>
+        <div class="rule-body">
+          <h4>説明書をつける + 不要なコードを消す</h4>
+          <p>担当者が変わったとき「これ何？どう止めるの？」となるのを防ぎます。<b>先頭に目的・止め方・担当者などの説明書を置き、各処理にも1行タイトル</b>をつけます。使っていない古いコードも消してすっきりさせます。</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
+            <div style="background:var(--red-bg);border-radius:8px;padding:12px;font-size:13px">
+              <div style="color:var(--red);font-weight:700;margin-bottom:4px">NG（引き継げない）</div>
+              コメントなし。何のスクリプトか不明<br>
+              古いコードが残ったまま<br>
+              <span style="color:var(--sub);font-size:12px">※ 担当が変わると「触れない」状態に</span>
+            </div>
+            <div style="background:var(--g10);border-radius:8px;padding:12px;font-size:13px">
+              <div style="color:var(--green);font-weight:700;margin-bottom:4px">OK（すぐ引き継げる）</div>
+              先頭に目的・止め方・担当者を記載<br>
+              各関数に1行の説明つき<br>
+              <span style="color:var(--sub);font-size:12px">※ 読むだけで全体像がわかる</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Header comment -->
+    <section id="template">
+      <span class="sec-label">テンプレート</span>
+      <h2>R-8 で書かれる仕様コメント</h2>
+      <p>Claudeが自動で先頭に置くコメント。引き継ぎ時にこれだけ見れば運用がわかる状態を目指しています。</p>
+      <table class="s-table">
+        <tr><th>スクリプト名</th><td>（例）日次売上集計</td></tr>
+        <tr><th>目的</th><td>何を自動化するか1〜2行で書く</td></tr>
+        <tr><th>自動実行</th><td>毎日 7:00（設定者: 共有アカウント xxx@）</td></tr>
+        <tr><th>対象シート</th><td>ファイル名 or URL（タブID: 1234567890）</td></tr>
+        <tr><th>連携先</th><td>Slack通知 / 別スプシ「請求管理」/ 外部API など</td></tr>
+        <tr><th>必要な鍵</th><td>API_KEY, SLACK_WEBHOOK_URL（プロパティに設定）</td></tr>
+        <tr><th>実行アカウント</th><td>誰の権限で動くか</td></tr>
+        <tr><th>管理者/連絡先</th><td>担当者名（Slack @xxx）← 壊れたときの連絡先</td></tr>
+        <tr><th>作成/最終更新</th><td>2026-06-24 / 担当者名</td></tr>
+        <tr><th>止め方</th><td>自動実行の一覧から該当を削除（要 共有アカウント権限）</td></tr>
+      </table>
+      <p style="font-size:13px;color:var(--sub)">※ Claudeがスクリプトの先頭にこの内容をコメントとして自動で書きます。引き継ぎ時にこれだけ見れば運用がわかる状態を目指しています。</p>
+    </section>
+
+    <!-- Checklist -->
+    <section id="checklist">
+      <span class="sec-label">チェックリスト</span>
+      <h2>作業後に報告されるチェック結果</h2>
+      <p>Claudeは作業の最後にこのチェックリストを1項目ずつ確認して報告します。<br>全部OKなら納品OK。NGがあれば理由と対応方針も添えられます。</p>
+
+      <div class="check-item"><span class="check-box"></span>ENV push前にGitコミット済み / テスト環境で動作確認した</div>
+      <div class="check-item"><span class="check-box"></span>R-1 タブをGIDで掴んでいる / 列をヘッダー名で認識している</div>
+      <div class="check-item"><span class="check-box"></span>R-2 設定値がCONFIGに集約されている</div>
+      <div class="check-item"><span class="check-box"></span>R-3 まとめて読み書きしている / 6分を超えない</div>
+      <div class="check-item"><span class="check-box"></span>R-4 バリデーション + try-catch + 即通知 + リトライがある</div>
+      <div class="check-item"><span class="check-box"></span>R-5 排他制御がある / トリガーが共有アカウント + 二重防止</div>
+      <div class="check-item"><span class="check-box"></span>R-6 機密情報をコードに直書きしていない</div>
+      <div class="check-item"><span class="check-box"></span>R-7 タイムゾーンがAsia/Tokyoで統一されている</div>
+      <div class="check-item"><span class="check-box"></span>R-8 仕様コメント + 関数タイトルがある / 不要コードを消した</div>
+    </section>
+
+    <!-- Demo -->
+    <section id="demo">
+      <span class="sec-label">実績</span>
+      <h2>実際にレビューしてみた結果</h2>
+      <p>既存の「<a href="https://docs.google.com/spreadsheets/d/1ztUz7uMIEp8xjTpZDiMO_6s0xE3hi7t1DKzVdgY7RNU/edit?gid=888480538#gid=888480538" target="_blank">アマギフ出納簿GAS</a>」（約780行）をこのスキルでチェックした結果です。</p>
+
+      <div class="card-grid col3">
+        <div class="card green" style="text-align:center">
+          <h4 style="font-size:36px;font-weight:800;color:var(--green);margin-bottom:0">3</h4>
+          <p style="font-weight:700;color:var(--green)">OK</p>
+          <p>R-3, R-6, R-7</p>
+        </div>
+        <div class="card warn" style="text-align:center">
+          <h4 style="font-size:36px;font-weight:800;color:var(--amber);margin-bottom:0">4</h4>
+          <p style="font-weight:700;color:var(--amber)">一部NG</p>
+          <p>R-2, R-4, R-5, R-8</p>
+        </div>
+        <div class="card" style="text-align:center;border-left:4px solid var(--red);background:var(--red-bg)">
+          <h4 style="font-size:36px;font-weight:800;color:var(--red);margin-bottom:0">1</h4>
+          <p style="font-weight:700;color:var(--red)">NG</p>
+          <p>R-1</p>
+        </div>
+      </div>
+
+      <table class="s-table">
+        <tr><th>ルール</th><th>判定</th><th>指摘内容</th></tr>
+        <tr><td>R-1 シート参照</td><td style="color:var(--red);font-weight:700">NG</td><td>getSheetByName() でタブ名直書き。列番号も直書き。</td></tr>
+        <tr><td>R-2 設定集約</td><td style="color:var(--amber);font-weight:700">一部NG</td><td>定数はあるが CONFIG オブジェクトではない。列番号がコード中に散在。</td></tr>
+        <tr><td>R-3 パフォーマンス</td><td style="color:var(--green);font-weight:700">OK</td><td>setValues() で一括書き込み。flush() も適切。</td></tr>
+        <tr><td>R-4 エラーハンドリング</td><td style="color:var(--amber);font-weight:700">一部NG</td><td>リトライあり。ただしSlack/メール通知がない。</td></tr>
+        <tr><td>R-5 排他制御・トリガー</td><td style="color:var(--amber);font-weight:700">一部NG</td><td>二重トリガー防止あり。LockService未使用。共有アカウント記載なし。</td></tr>
+        <tr><td>R-6 機密管理</td><td style="color:var(--green);font-weight:700">OK</td><td>外部連携なし。PropertiesService を適切に使用。</td></tr>
+        <tr><td>R-7 タイムゾーン</td><td style="color:var(--green);font-weight:700">OK</td><td>日付処理は数式側で完結。</td></tr>
+        <tr><td>R-8 ドキュメント</td><td style="color:var(--amber);font-weight:700">一部NG</td><td>冒頭コメントはあるが仕様コメント不足。関数タイトルなしの関数あり。</td></tr>
+      </table>
+
+      <div class="alert ok">
+        <span class="icon">&#10003;</span>
+        <div>既存コードの問題点を8項目で網羅的に指摘できることを確認。<b>レビュー用途としても機能します。</b></div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq">
+      <span class="sec-label">よくある疑問</span>
+      <h2>Q&A</h2>
+
+      <div class="card-grid col1">
+        <div class="card">
+          <h4>Q. 全部のルールを覚えないとダメ？</h4>
+          <p>覚えなくてOK。Claudeが自動でルールに沿って書きます。あなたは「GAS作って」と伝えて、最後のチェック結果を確認するだけ。</p>
+        </div>
+        <div class="card">
+          <h4>Q. 環境前提が整ってない場合は？</h4>
+          <p>Claudeが「先に整備しましょう」と提案します。勝手にコードを書き始めたりしません（暴走防止が入っています）。</p>
+        </div>
+        <div class="card">
+          <h4>Q. 既存のGASにもルールを適用できる？</h4>
+          <p>できます。「GASレビューして」と伝えれば、既存コードをR-1〜R-8でチェックして結果を報告します。修正は「次の改修時に」でもOK。</p>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <footer>
+    gas-build スキル 使い方ガイド｜2026-06-26 作成
+  </footer>
+
+</body>
+</html>
