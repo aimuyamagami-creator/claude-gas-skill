@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude GAS Skill - GASビルドスキル納品物</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', sans-serif; background: #f5f5f5; color: #333; line-height: 1.7; }
+    .container { max-width: 720px; margin: 0 auto; padding: 40px 20px; }
+    h1 { font-size: 1.6rem; margin-bottom: 8px; }
+    .subtitle { color: #666; margin-bottom: 32px; }
+    .card { background: #fff; border-radius: 8px; padding: 24px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    .card h2 { font-size: 1.1rem; margin-bottom: 12px; color: #1a73e8; }
+    .card p { color: #555; font-size: 0.95rem; margin-bottom: 12px; }
+    .card a { display: inline-block; color: #1a73e8; text-decoration: none; font-weight: 500; }
+    .card a:hover { text-decoration: underline; }
+    .tag { display: inline-block; background: #e8f0fe; color: #1a73e8; font-size: 0.75rem; padding: 2px 8px; border-radius: 4px; margin-right: 4px; }
+    .tag.code { background: #fce8e6; color: #c5221f; }
+    footer { text-align: center; color: #999; font-size: 0.8rem; margin-top: 40px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>GAS ビルドスキル</h1>
+    <p class="subtitle">Google Apps Script を長期運用に耐える形で設計・実装・チェックするためのルール集</p>
+
+    <div class="card">
+      <h2>スキル定義（SKILL.md）</h2>
+      <p>Claude が GAS を作る・直す・チェックするときに適用するルール全文。設計ルール8項目、チェックリスト、禁止事項を含む。</p>
+      <span class="tag">Markdown</span>
+      <br><br>
+      <a href="https://github.com/aimuyamagami-creator/claude-gas-skill/blob/master/SKILL.md" target="_blank">GitHub で見る &rarr;</a>
+    </div>
+
+    <div class="card">
+      <h2>GAS 設計ルール v2</h2>
+      <p>8つの設計ルールをビジュアルにまとめたページ。コード例付き。</p>
+      <span class="tag">HTML</span>
+      <br><br>
+      <a href="gas-rules-v2.html">開く &rarr;</a>
+    </div>
+
+    <div class="card">
+      <h2>スキルレポート</h2>
+      <p>GASビルドスキルの概要・適用ルール・成果をまとめたレポート。</p>
+      <span class="tag">HTML</span>
+      <br><br>
+      <a href="gas-skill-report.html">開く &rarr;</a>
+    </div>
+
+    <div class="card">
+      <h2>サンプルコード：作業ログ自動集計</h2>
+      <p>スキルを適用して作成した GAS のサンプル。GID参照・ヘッダー名認識・排他制御・リトライなど、全ルールを反映。</p>
+      <span class="tag code">GAS</span> <span class="tag code">JSON</span>
+      <br><br>
+      <a href="https://github.com/aimuyamagami-creator/claude-gas-skill/blob/master/work-log-gas/%E3%82%B3%E3%83%BC%E3%83%89.gs" target="_blank">コード.gs を見る &rarr;</a>
+      <br>
+      <a href="https://github.com/aimuyamagami-creator/claude-gas-skill/blob/master/work-log-gas/appsscript.json" target="_blank">appsscript.json を見る &rarr;</a>
+    </div>
+
+    <footer>
+      <p><a href="https://github.com/aimuyamagami-creator/claude-gas-skill" target="_blank" style="color:#999;">GitHub リポジトリ</a></p>
+    </footer>
+  </div>
+</body>
+</html>
